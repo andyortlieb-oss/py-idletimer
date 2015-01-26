@@ -13,21 +13,21 @@ if __name__ == '__main__':
 
     log.info("Starting Tests")
 
-    delayer = IdleTimer(5, callback=None)
+    delayer = IdleTimer(5)
     log.info("Running (not starting) delayer.")
     delayer.run()
     log.info("Delayer returned.")
 
 
     # Test the thing.
-    i_2sec = IdleTimer(3, callback=None)
-    i_7sec_3sec = IdleTimer(7, 3, callback=None)
+    i_2sec = IdleTimer(3)
+    i_7sec_3sec = IdleTimer(7, 3)
 
     def i_8sec_cb(timer):
         timer.customcb="Done"
     i_8sec = IdleTimer(8, callback=i_8sec_cb)
 
-    i_11sec = IdleTimer(11)
+    i_11sec = IdleTimer(11, callback=exit)
     i_300sec = IdleTimer(12)
 
     starttime = now()

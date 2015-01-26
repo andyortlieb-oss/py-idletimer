@@ -19,7 +19,7 @@ class IdleTimer(threading.Thread):
     daemon = True
     end = None
 
-    def __init__(self, wait, deviation=0, callback=exit(1), *args, **kwargs):
+    def __init__(self, wait, deviation=0, callback=None, *args, **kwargs):
         self.callbacks = []
         self.ret = []
         self.timeout = wait + random.randint(-deviation, deviation)
