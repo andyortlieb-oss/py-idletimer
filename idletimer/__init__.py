@@ -1,3 +1,5 @@
+# https://github.com/andyortlieb/py-idletimer
+
 import os
 import sys
 import time
@@ -20,12 +22,13 @@ class IdleTimer(threading.Thread):
     end = None
 
     def __init__(self, wait, deviation=0, callback=None, *args, **kwargs):
-        self.callbacks = []
+        self.timeout_handlers = []
+        self.bump_handlers = []
         self.ret = []
         self.timeout = wait + random.randint(-deviation, deviation)
 
         if callback:
-            self.callbacks.append(callback)
+            self.timeout_handlers.append(callback)
 
         super(IdleTimer, self).__init__(*args, **kwargs)
 
@@ -33,6 +36,11 @@ class IdleTimer(threading.Thread):
         old = self.end
         self.end = now() + datetime.timedelta(seconds=self.timeout)
         log.debug("[%s] Bumping from %s to %s" % (self.name, old, self.end))
+
+        bump_ret = []
+        for cb in self.bump_handlers:
+            bump_ret.append(cb(self))
+        return bump_ret
 
     def run(self):
         self.bump()
@@ -48,5 +56,14 @@ class IdleTimer(threading.Thread):
         log.debug("[%s] No longer waiting. It's %s, end time was %s" % (self.name, now(), self.end))
 
         # We're out of the loop, so we must have idled long enough
-        for cb in self.callbacks:
+        for cb in self.timeout_handlers:
             self.ret.append(cb(self))
+
+    # A decorator to add timeout_handlers
+    def timeout_handler(self, fn):
+        self.timeout_handlers.append(fn)
+        return fn
+
+    def bump_handler(self, fn):
+        self.bump_handlers.append(fn)
+        return fn
